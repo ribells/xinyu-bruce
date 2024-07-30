@@ -1,0 +1,163 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+	<title>Board Slant</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link rel=stylesheet href="css/base.css"/>
+	<script src="imagery.js"></script>
+</head>
+<body>
+<script src="js/Three.js"></script>
+<script src="js/Detector.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/TrackballControls.js"></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:100px"></div>
+<script>
+    // MAIN
+
+    // standard global variables
+    var container, scene, camera, renderer, controls, stats;
+    var keyboard = new THREEx.KeyboardState();
+    var clock = new THREE.Clock();
+
+    // custom global variables
+    var time = 0;
+
+    init();
+    animate();
+    setTimeout(function() { updateTime(); }, 1000);
+
+    // FUNCTIONS 		
+    function init() 
+    {
+	// SCENE
+	scene = new THREE.Scene();
+	
+	// CAMERA
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	
+	scene.add(camera);
+	
+	camera.position.set(0, 0, 20);
+	camera.lookAt(0.0, 0.0, 0.0);
+
+	// RENDERER
+	if ( Detector.webgl ) {
+		renderer = new THREE.WebGLRenderer( {antialias:true} );
+	} else {
+		renderer = new THREE.CanvasRenderer();
+	}
+	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	container = document.getElementById( 'ThreeJS' );
+	container.appendChild( renderer.domElement );
+
+	// EVENTS
+	THREEx.WindowResize(renderer, camera);
+	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+
+	// CONTROLS
+	controls = new THREE.TrackballControls( camera );
+	controls.rotateSpeed = 1;
+	//controls.noPan = false;
+
+	// LIGHT
+	var light = new THREE.PointLight(0xffff00);
+	light.position.set(0,0,0);
+	scene.add(light);
+	
+	var image = new Image();
+	image.src = bimage;
+
+	var wall_material = new THREE.MeshLambertMaterial( {} );
+
+	var borderTop = new THREE.Mesh(new THREE.CubeGeometry(332, 10, 350), wall_material, 0);
+	borderTop.position.x = 0;
+	borderTop.position.y = 196;
+	scene.add(borderTop);
+
+	var borderBottom = new THREE.Mesh(new THREE.CubeGeometry(332, 10, 350), wall_material, 0);
+	borderBottom.position.x = 0;
+	borderBottom.position.y = -192;
+	scene.add(borderBottom);
+
+	var borderLeft = new THREE.Mesh(new THREE.CubeGeometry(10, 400, 350), wall_material, 0);
+	borderLeft.position.x = -170;
+	borderLeft.position.y = 2;
+	scene.add(borderLeft);
+
+	var borderRight = new THREE.Mesh(new THREE.CubeGeometry(10, 400, 350), wall_material, 0);
+	borderRight.position.x = 170;
+	borderRight.position.y = 2;
+	scene.add(borderRight);
+
+	var borderBack = new THREE.Mesh(new THREE.CubeGeometry(332, 400, 10), wall_material, 0);
+	borderBack.position.z = -170;
+	borderBack.position.y = 2;
+	scene.add(borderBack);
+
+	var borderFrontBottom = new THREE.Mesh(new THREE.CubeGeometry(332, 170, 10), wall_material, 0);
+	borderFrontBottom.position.z = 170;
+	borderFrontBottom.position.y = -113;
+	scene.add(borderFrontBottom);
+	
+	var borderFrontTop = new THREE.Mesh(new THREE.CubeGeometry(332, 170, 10), wall_material, 0);
+	borderFrontTop.position.z = 170;
+	borderFrontTop.position.y = 117;
+	scene.add(borderFrontTop);
+
+	var borderFrontRight = new THREE.Mesh(new THREE.CubeGeometry(272, 60, 10), wall_material, 0);
+	borderFrontRight.position.x = -36;	
+	borderFrontRight.position.z = 170;
+	borderFrontRight.position.y = 2;
+	scene.add(borderFrontRight);
+
+	scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
+    }
+
+    function updateTime() {
+        time++;
+        setTimeout(function() { updateTime(); }, 1000);
+    }
+
+    function animate() {
+        requestAnimationFrame( animate );
+	render();		
+	update();
+    }
+
+    function update() {
+	// local coordinates
+
+	// local transformations
+
+	// move forwards/backwards/left/right
+	if ( keyboard.pressed("W") ) {}
+
+	// rotate left/right/up/down
+	var rotation_matrix = new THREE.Matrix4().identity();
+	if ( keyboard.pressed("A") ) {}
+	
+	if ( keyboard.pressed("Z") ) {}
+
+	controls.update();
+    }
+
+    function hypot(x, y) {
+        return Math.sqrt(x*x + y*y);
+    }
+
+    function render() 
+    {
+	renderer.render( scene, camera );
+    }
+
+</script>
+</body>
+</html>
