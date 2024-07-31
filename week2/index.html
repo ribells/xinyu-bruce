@@ -6,7 +6,6 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<link rel=stylesheet href="css/base.css"/>
-	<script src="imagery.js"></script>
 </head>
 <body>
 <script src="js/Three.js"></script>
@@ -21,7 +20,7 @@
     // MAIN
 
     // standard global variables
-    var container, scene, camera, renderer, controls, stats;
+    var container, scene, camera, renderer, controls;
     var keyboard = new THREEx.KeyboardState();
     var clock = new THREE.Clock();
 
@@ -46,7 +45,6 @@
 	scene.add(camera);
 	
 	camera.position.set(0, 0, 20);
-	camera.lookAt(0.0, 0.0, 0.0);
 
 	// RENDERER
 	if ( Detector.webgl ) {
@@ -71,9 +69,6 @@
 	var light = new THREE.PointLight(0xffff00);
 	light.position.set(0,0,0);
 	scene.add(light);
-	
-	var image = new Image();
-	image.src = bimage;
 
 	var wall_material = new THREE.MeshLambertMaterial( {} );
 
