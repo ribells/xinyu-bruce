@@ -22,6 +22,7 @@
     var container, scene, camera, renderer, controls, stats;
     var keyboard = new THREEx.KeyboardState();
     var clock = new THREE.Clock();
+    var cylinder = "";
 
     // custom global variables
     var time = 0;
@@ -102,6 +103,11 @@
 		borderFrontRight.position.z = 170;
 		borderFrontRight.position.y = 0;
 		scene.add(borderFrontRight);
+		
+		const geometry = new THREE.CylinderGeometry( 5, 5, 20, 32 ); 
+		const material = new THREE.MeshBasicMaterial( {color: 0xff0000} ); 
+		cylinder = new THREE.Mesh( geometry, material ); scene.add( cylinder );
+		scene.add(cylinder);
 
 		scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
     }
@@ -113,25 +119,26 @@
 
     function animate() {
         requestAnimationFrame( animate );
-	render();		
-	update();
+		render();		
+		update();
     }
 
     function update() {
-	// local coordinates
+		// local coordinates
 
-	// local transformations
+		// local transformations
+		cylinder.position.y = cylinder.position.y + 1;
 
-	// move forwards/backwards/left/right
-	if ( keyboard.pressed("W") ) {}
+		// move forwards/backwards/left/right
+		if ( keyboard.pressed("W") ) {}
 
-	// rotate left/right/up/down
-	var rotation_matrix = new THREE.Matrix4().identity();
-	if ( keyboard.pressed("A") ) {}
+		// rotate left/right/up/down
+		var rotation_matrix = new THREE.Matrix4().identity();
+		if ( keyboard.pressed("A") ) {}
 	
-	if ( keyboard.pressed("Z") ) {}
+		if ( keyboard.pressed("Z") ) {}
 
-	controls.update();
+		controls.update();
     }
 
     function hypot(x, y) {
