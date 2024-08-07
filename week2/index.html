@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -20,9 +19,10 @@
     // MAIN
 
     // standard global variables
-    var container, scene, camera, renderer, controls;
+    var container, scene, camera, renderer, controls, stats;
     var keyboard = new THREEx.KeyboardState();
     var clock = new THREE.Clock();
+    var cylinder = "";
 
     // custom global variables
     var time = 0;
@@ -34,86 +34,101 @@
     // FUNCTIONS 		
     function init() 
     {
-	// SCENE
-	scene = new THREE.Scene();
+		// SCENE
+		scene = new THREE.Scene();
 	
-	// CAMERA
-	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
-	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
-	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+		// CAMERA
+		var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+		var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+		camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
 	
-	scene.add(camera);
+		scene.add(camera);
 	
-	camera.position.set(0, 0, 20);
+		camera.position.set(0, 0, 800);
 
-	// RENDERER
-	if ( Detector.webgl ) {
-		renderer = new THREE.WebGLRenderer( {antialias:true} );
-	} else {
-		renderer = new THREE.CanvasRenderer();
-	}
-	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-	container = document.getElementById( 'ThreeJS' );
-	container.appendChild( renderer.domElement );
+		// RENDERER
+		if ( Detector.webgl ) {
+			renderer = new THREE.WebGLRenderer( {antialias:true} );
+		} else {
+			renderer = new THREE.CanvasRenderer();
+		}
+		renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+		container = document.getElementById( 'ThreeJS' );
+		container.appendChild( renderer.domElement );
 
-	// EVENTS
-	THREEx.WindowResize(renderer, camera);
-	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+		// EVENTS
+		THREEx.WindowResize(renderer, camera);
+		THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
 
-	// CONTROLS
-	controls = new THREE.TrackballControls( camera );
-	controls.rotateSpeed = 1;
-	//controls.noPan = false;
+		// CONTROLS
+		controls = new THREE.TrackballControls( camera );
+		controls.rotateSpeed = 1;
+		//controls.noPan = false;
 
-	// LIGHT
-	var light = new THREE.PointLight(0xffff00);
-	light.position.set(0,0,0);
-	scene.add(light);
+		// LIGHT
+		var light = new THREE.PointLight(0xffff00);
+		light.position.set(0,250,0);
+		scene.add(light);
 
-	var wall_material = new THREE.MeshLambertMaterial( {} );
+		var wall_material = new THREE.MeshLambertMaterial( {} );
 
-	var borderTop = new THREE.Mesh(new THREE.CubeGeometry(332, 10, 350), wall_material, 0);
-	borderTop.position.x = 0;
-	borderTop.position.y = 196;
-	scene.add(borderTop);
+		var borderLeft = new THREE.Mesh(new THREE.CubeGeometry(10, 150, 350), wall_material, 0);
+		borderLeft.position.x = -170;
+		borderLeft.position.y = 2;
+		borderLeft.position.z = 0;
+		scene.add(borderLeft);
 
-	var borderBottom = new THREE.Mesh(new THREE.CubeGeometry(332, 10, 350), wall_material, 0);
-	borderBottom.position.x = 0;
-	borderBottom.position.y = -192;
-	scene.add(borderBottom);
+		var borderRight = new THREE.Mesh(new THREE.CubeGeometry(10, 150, 350), wall_material, 0);
+		borderRight.position.x = 170;
+		borderRight.position.y = 2;
+		scene.add(borderRight);
 
-	var borderLeft = new THREE.Mesh(new THREE.CubeGeometry(10, 400, 350), wall_material, 0);
-	borderLeft.position.x = -170;
-	borderLeft.position.y = 2;
-	scene.add(borderLeft);
+		var borderBack = new THREE.Mesh(new THREE.CubeGeometry(332, 150, 10), wall_material, 0);
+		borderBack.position.z = -170;
+		borderBack.position.y = 2;
+		scene.add(borderBack);
 
-	var borderRight = new THREE.Mesh(new THREE.CubeGeometry(10, 400, 350), wall_material, 0);
-	borderRight.position.x = 170;
-	borderRight.position.y = 2;
-	scene.add(borderRight);
+		var borderFrontBottom = new THREE.Mesh(new THREE.CubeGeometry(332, 50, 10), wall_material, 0);
+		borderFrontBottom.position.z = 170;
+		borderFrontBottom.position.y = -48;
+		scene.add(borderFrontBottom);
 
-	var borderBack = new THREE.Mesh(new THREE.CubeGeometry(332, 400, 10), wall_material, 0);
-	borderBack.position.z = -170;
-	borderBack.position.y = 2;
-	scene.add(borderBack);
+		var borderFrontTop = new THREE.Mesh(new THREE.CubeGeometry(332, 50, 10), wall_material, 0);
+		borderFrontTop.position.z = 170;
+		borderFrontTop.position.y = 52;
+		scene.add(borderFrontTop);
 
-	var borderFrontBottom = new THREE.Mesh(new THREE.CubeGeometry(332, 170, 10), wall_material, 0);
-	borderFrontBottom.position.z = 170;
-	borderFrontBottom.position.y = -113;
-	scene.add(borderFrontBottom);
-	
-	var borderFrontTop = new THREE.Mesh(new THREE.CubeGeometry(332, 170, 10), wall_material, 0);
-	borderFrontTop.position.z = 170;
-	borderFrontTop.position.y = 117;
-	scene.add(borderFrontTop);
+		var borderFrontRight = new THREE.Mesh(new THREE.CubeGeometry(272, 56, 10), wall_material, 0);
+		borderFrontRight.position.x = -36;	
+		borderFrontRight.position.z = 170;
+		borderFrontRight.position.y = 0;
+		scene.add(borderFrontRight);
+		
+		/*
+		const geometry = new THREE.CylinderGeometry( 5, 5, 20, 32 ); 
+		const material = new THREE.MeshBasicMaterial( {color: 0xff0000} ); 
+		cylinder = new THREE.Mesh( geometry, material ); scene.add( cylinder );
+		scene.add(cylinder);
+		*/
+		const geometry = new THREE.SphereGeometry( 30, 100, 100 ); 
+		const material = new THREE.MeshPhongMaterial( { color: 0xffff00 } ); 
+		const sphere = new THREE.Mesh( geometry, material ); scene.add( sphere );
+		sphere.position.x = -36;	
+		sphere.position.z = -70;
+		sphere.position.y = 70;
 
-	var borderFrontRight = new THREE.Mesh(new THREE.CubeGeometry(272, 60, 10), wall_material, 0);
-	borderFrontRight.position.x = -36;	
-	borderFrontRight.position.z = 170;
-	borderFrontRight.position.y = 2;
-	scene.add(borderFrontRight);
+		const geometry2 = new THREE.CircleGeometry( 5, 32 ); 
+		const material2 = new THREE.MeshBasicMaterial( {color: 0xff0000} ); 
+		circle = new THREE.Mesh( geometry2, material2 ); scene.add( cylinder );
+		scene.add(circle);
 
-	scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
+		
+		const directionalLight = new THREE.DirectionalLight( 0xff00ffff, 1 );
+		scene.add( directionalLight );
+
+		
+
+		scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
     }
 
     function updateTime() {
@@ -123,25 +138,26 @@
 
     function animate() {
         requestAnimationFrame( animate );
-	render();		
-	update();
+		render();		
+		update();
     }
 
     function update() {
-	// local coordinates
+		// local coordinates
 
-	// local transformations
+		// local transformations
+		//cylinder.position.y = cylinder.position.y + 1;
 
-	// move forwards/backwards/left/right
-	if ( keyboard.pressed("W") ) {}
+		// move forwards/backwards/left/right
+		if ( keyboard.pressed("W") ) {}
 
-	// rotate left/right/up/down
-	var rotation_matrix = new THREE.Matrix4().identity();
-	if ( keyboard.pressed("A") ) {}
+		// rotate left/right/up/down
+		var rotation_matrix = new THREE.Matrix4().identity();
+		if ( keyboard.pressed("A") ) {}
 	
-	if ( keyboard.pressed("Z") ) {}
+		if ( keyboard.pressed("Z") ) {}
 
-	controls.update();
+		controls.update();
     }
 
     function hypot(x, y) {
