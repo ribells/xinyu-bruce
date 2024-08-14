@@ -203,7 +203,6 @@ THREE.TrackballControls = function ( object, player, domElement ) {
 			lastPosition.copy( _this.object.position );
 		}
 		player.rotation.set( _this.object.rotation.x, _this.object.rotation.y, _this.object.rotation.z );
-		//_this.object.lookAt( player.location );
 	};
 
 	this.reset = function () {
