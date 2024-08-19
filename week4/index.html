@@ -189,71 +189,39 @@
 		//move right
 		if ( keyboard.pressed("D") ) {
 			player.position.x += 2;
-			//followPlayer();
 		}
 		//move left
 		if ( keyboard.pressed("A") ) {
 			player.position.x -= 2;
-			//followPlayer();
 		}
 		//move up
 		if ( keyboard.pressed("W") ) {
-			var mag = Math.sqrt(camera.rotation.x*camera.rotation.x + camera.rotation.y*camera.rotation.y + camera.rotation.z*camera.rotation.z);
-			if(mag == 0) {
-				player.position.z -= 1.0;
-			} else {
-				player.position.x -= (camera.rotation.x/mag);
-				player.position.y -= (camera.rotation.y/mag);
-				player.position.z -= (camera.rotation.z/mag);
-			}
-			//player.position.y += 2;
-			//followPlayer();
-			console.log(player.position);
+			var direction = player.position.clone().sub( camera.position ).normalize();
+			player.position.add(direction.clone().multiplyScalar(1));
 		}
 		//move down
 		if ( keyboard.pressed("S") ) {
-			var mag = Math.sqrt(camera.rotation.x*camera.rotation.x + camera.rotation.y*camera.rotation.y + camera.rotation.z*camera.rotation.z);
-			if(mag == 0) {
-				player.position.z += 1.0;
-			} else {
-				player.position.x += (camera.rotation.x/mag);
-				player.position.y += (camera.rotation.y/mag);
-				player.position.z += (camera.rotation.z/mag);
-			}
-			//player.position.y -= 2;
-			//followPlayer();
-			console.log(player.position);
+			var direction = player.position.clone().sub( camera.position ).normalize();
+			player.position.add(direction.clone().multiplyScalar(-1));
 		}
 		//move front
 		if ( keyboard.pressed("Z") ) {
 			player.position.z += 2;
-			//followPlayer();
 		}
 		//move back
 		if ( keyboard.pressed("X") ) {
 			player.position.z -= 2;
-			//followPlayer();
 		}
 
 		// rotate left/right/up/down
 		var rotation_matrix = new THREE.Matrix4().identity();
-		if ( keyboard.pressed("O") ) { 
-			//const direction = new THREE.Vector3;
-			let speed = 100.0;
-			var distance = 10.0;
-			//camera.getWorldDirection(direction);
-			//camera.position.addScaledVector(direction, speed);
-			camera.position.x += distance*Math.sin(camera.rotation.x);
-			camera.position.y += distance*Math.sin(camera.rotation.y);
-			//camera.rotation.set(direction*Math.sin(camera.rotation.x), direction*Math.cos(camera.rotation.y), 0); 
-		}
+		if ( keyboard.pressed("O") ) {}
 	
 		if ( keyboard.pressed("Z") ) {}
 
 		controls.update();
 	
 		console.log(player.position.x,  player.position.y,  player.position.z);
-		//camera.lookAt(player.position.x,  player.position.y,  player.position.z);
     }
 
     function hypot(x, y) {
