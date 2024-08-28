@@ -231,21 +231,28 @@
 			var direction = player.position.clone().sub( camera.position ).normalize();
 			player.position.add(direction.clone().multiplyScalar(1));
 
+			var success = false;
+
 			// check to see if through exit
 			if( player.position.z > 1634 ) {
 				if( player.position.x > 1200 ) {
 					if (player.position.y < 100 && player.position.y > -100 ) {
 						// THROUGH THE EXIT
+						alert("WE HAVE EXITED THE ROOM");
+						success = true;
 					}
 				}
 			}
 
-			// check for a collision of player with walls
-			if( player.position.x > 1634 || player.position.y > 1634 || player.position.z > 1634 || 
-		    	    player.position.x < -1634 || player.position.y < -1634 || player.position.z < -1634 ) {
-				player.position.add(direction.clone().multiplyScalar(-1));
+			if (!success) {
+				// check for a collision of player with walls
+				if( player.position.x > 1634 || player.position.y > 1634 || player.position.z > 1634 || 
+		    	    		player.position.x < -1634 || player.position.y < -1634 || player.position.z < -1634 ) {
+					player.position.add(direction.clone().multiplyScalar(-1));
+				}
 			}
-			console.log("Distance to Sphere: " + distance(player.position, sphere.position));
+			//console.log("Distance to Sphere: " + distance(player.position, sphere.position));
+			console.log("Player Position: " + player.position.x + ", " + player.position.y + ", " + player.position.z);
 		}
 		//move away camera location
 		if ( keyboard.pressed("S") ) {
