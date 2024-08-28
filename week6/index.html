@@ -29,6 +29,8 @@
     var circle_direction = 1;
     var cone_geometry = [];
     var cone = [];
+    var num_cones = 50;
+    var attack_count = 0;
     var circle = "";
 
     // custom global variables
@@ -157,7 +159,7 @@
 
 		// https://threejs.org/examples/webgl_math_orientation_transform
 
-		for(n=0;n<50;n++) {
+		for(n=0;n<num_cones;n++) {
 			cone_geometry.push(new THREE.CylinderGeometry( 1, 10, -32 ));
 			cone.push(new THREE.Mesh(cone_geometry[n], cone_material));
 			scene.add(cone[n]);
@@ -183,12 +185,19 @@
     }
 
     function updateTime() {
-        time++;
-        setTimeout(function() { updateTime(); }, 1000);
+		time++;
+
+		if(time % 5 == 0 && attack_count < num_cones) {
+			// attack player
+			cone[attack_count].material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+			attack_count++;
+		}
+
+		setTimeout(function() { updateTime(); }, 1000);
     }
 
     function animate() {
-        requestAnimationFrame( animate );
+		requestAnimationFrame( animate );
 		render();		
 		update();
     }
