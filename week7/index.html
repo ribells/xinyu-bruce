@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<title>Xinyu: Moving Through Objects</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link rel=stylesheet href="css/base.css"/>
+</head>
+<body>
+<script src="js/Three.js"></script>
+<script src="js/Detector.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/TrackballControls.js"></script>
+
+<div style="position:absolute; left:0px; top:0px; z-index:2">
+	<span id="health_bar" style="position:relative;top:5px;color:green">
+		HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+	</span>
+</div>
+<div id="ThreeJS" style="position:absolute; left:0px; top:20px; z-index:1"></div>
+<script>
+    // MAIN
+
+    // standard global variables
+    var container, scene, camera, renderer, controls;
+    var keyboard = new THREEx.KeyboardState();
+    var clock = new THREE.Clock();
+    var player = "";
+    var player_health = 100;
+    var sphere = "";
+    var sphere_direction = 1;
+    var cone_geometry = [];
+    var cone = [];
+    var num_cones = 50;
+    var attack_count = 0;
+    var attack_current = -1;
+    var attack_speed = 1;
+    var attack_vector = [0, 0, 0];
+
+    // custom global variables
+    var time = 0;
+
+    init();
+    animate();
+    setTimeout(function() { updateTime(); }, 1000);
+
+    // FUNCTIONS 		
+    function init() 
+    {
+		// SCENE
+		scene = new THREE.Scene();
+	
+		// CAMERA
+		var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+		var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+		camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	
+		scene.add(camera);
+	
+		camera.position.set(0, 0, 20);
+
+		// RENDERER
+		if ( Detector.webgl ) {
+			renderer = new THREE.WebGLRenderer( {antialias:true} );
+		} else {
+			renderer = new THREE.CanvasRenderer();
+		}
+		renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+		container = document.getElementById( 'ThreeJS' );
+		container.appendChild( renderer.domElement );
+
+		// EVENTS
+		THREEx.WindowResize(renderer, camera);
+		THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+
+		// LIGHT
+		var light = new THREE.PointLight(0xffff00);
+		light.position.set(0,0,0);
+		scene.add(light);
+		
+		var player_material = new THREE.MeshLambertMaterial( {emissive: 0xffffff} );
+		
+		player = new THREE.Mesh(new THREE.CubeGeometry(10, 10, 10), player_material, 0);
+		player.position.x = 0;
+		player.position.y = 0;
+		player.position.z = -10;
+		scene.add(player);
+		
+		// CONTROLS
+		controls = new THREE.TrackballControls( camera, player );
+		controls.rotateSpeed = 1;
+		//controls.noPan = false;
+
+		var wall_material = new THREE.MeshLambertMaterial( {} );
+		
+		room = "";
+
+		const room_geometry = new THREE.CircleGeometry( .000001, .000001 ); 
+		const room_material = new THREE.MeshBasicMaterial( {color: 0xff0000} ); 
+		room = new THREE.Mesh( room_geometry, room_material );
+		scene.add(room);
+		
+		var borderTop = new THREE.Mesh(new THREE.CubeGeometry(332, 10, 350), wall_material, 0);
+		borderTop.position.x = 0;
+		borderTop.position.y = 196;
+		room.add(borderTop);
+
+		var borderBottom = new THREE.Mesh(new THREE.CubeGeometry(332, 10, 350), wall_material, 0);
+		borderBottom.position.x = 0;
+		borderBottom.position.y = -192;
+		room.add(borderBottom);
+
+		var borderLeft = new THREE.Mesh(new THREE.CubeGeometry(10, 400, 350), wall_material, 0);
+		borderLeft.position.x = -170;
+		borderLeft.position.y = 2;
+		room.add(borderLeft);
+
+		var borderRight = new THREE.Mesh(new THREE.CubeGeometry(10, 400, 350), wall_material, 0);
+		borderRight.position.x = 170;
+		borderRight.position.y = 2;
+		room.add(borderRight);
+
+		var borderBack = new THREE.Mesh(new THREE.CubeGeometry(332, 400, 10), wall_material, 0);
+		borderBack.position.z = -170;
+		borderBack.position.y = 2;
+		room.add(borderBack);
+
+		var borderFrontBottom = new THREE.Mesh(new THREE.CubeGeometry(332, 170, 10), wall_material, 0);
+		borderFrontBottom.position.z = 170;
+		borderFrontBottom.position.y = -113;
+		room.add(borderFrontBottom);
+	
+		var borderFrontTop = new THREE.Mesh(new THREE.CubeGeometry(332, 170, 10), wall_material, 0);
+		borderFrontTop.position.z = 170;
+		borderFrontTop.position.y = 117;
+		room.add(borderFrontTop);
+
+		var borderFrontRight = new THREE.Mesh(new THREE.CubeGeometry(272, 60, 10), wall_material, 0);
+		borderFrontRight.position.x = -36;	
+		borderFrontRight.position.z = 170;
+		borderFrontRight.position.y = 2;
+		room.add(borderFrontRight);
+		
+		room.scale.x = 10;
+		room.scale.y = 10;
+		room.scale.z = 10;
+	
+		const sphere_geometry = new THREE.SphereGeometry( 30, 100, 100 ); 
+		const sphere_material = new THREE.MeshPhongMaterial( { color: 0xffff00 } ); 
+		sphere = new THREE.Mesh( sphere_geometry, sphere_material );
+		scene.add( sphere );
+		
+		sphere.position.x = -36;	
+		sphere.position.z = -70;
+		sphere.position.y = 70;
+
+		const cone_material = new THREE.MeshBasicMaterial( {color: 0xff00ff} );
+
+		// https://threejs.org/examples/webgl_math_orientation_transform
+
+		for(n=0;n<num_cones;n++) {
+			cone_geometry.push(new THREE.CylinderGeometry( 1, 10, -32 ));
+			cone.push(new THREE.Mesh(cone_geometry[n], cone_material));
+			scene.add(cone[n]);
+			var cone_distance = 0;
+			while(cone_distance < 600) {
+				cone[n].position.x = Math.random() * 1200 - 600;
+				cone[n].position.y = Math.random() * 1200 - 600;
+				cone[n].position.z = Math.random() * 1200 - 600;
+				cone_distance = distance(player, cone[n]);
+			}
+		}
+		
+		pointConesAtPlayer();
+
+		scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
+    }
+    
+    function pointConesAtPlayer() {
+		for(n=0;n<num_cones;n++) {
+			// point the cone at player
+			var rotationMatrix = new THREE.Matrix4();
+			var targetQuaternion = new THREE.Quaternion();
+			rotationMatrix.lookAt( player.position, cone[n].position, cone[n].up );
+			targetQuaternion.setFromRotationMatrix( rotationMatrix );
+			cone[n].quaternion = targetQuaternion;
+			cone[n].rotateX( - Math.PI / 2 );
+		}
+    }
+    
+    function attackPlayer() {
+		cone[attack_count].material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+		attack_current = attack_count;
+		attack_speed = Math.random() * 4 + 10;
+		attack_vector = [cone[attack_count].position.x - player.position.x,
+						 cone[attack_count].position.y - player.position.y, 
+						 cone[attack_count].position.z - player.position.z];
+
+		// normalize the attack_vector to be of consistent distance
+		var total_magnitude = (cone[attack_count].position.x - player.position.x) +
+							  (cone[attack_count].position.y - player.position.y) + 
+							  (cone[attack_count].position.z - player.position.z);
+							  
+		attack_vector[0] = (attack_vector[0] * attack_speed) / Math.abs(total_magnitude);
+		attack_vector[1] = (attack_vector[1] * attack_speed) / Math.abs(total_magnitude);
+		attack_vector[2] = (attack_vector[2] * attack_speed) / Math.abs(total_magnitude);
+		
+		attack_count++;    
+    }
+
+    function updateTime() {
+		time++;
+
+		if(time == 5) {
+			// attack player with first cone
+			attackPlayer();
+		}
+
+		setTimeout(function() { updateTime(); }, 1000);
+    }
+
+    function animate() {
+		requestAnimationFrame( animate );
+		render();		
+		update();
+    }
+    
+    function update() {
+
+		// local transformations
+		//change to bounce off wall (instead of just reverse direction)
+		sphere.position.x += 10*sphere_direction;
+		sphere.position.y += 10*sphere_direction;
+	
+		if (sphere.position.x > 1634 || 
+			sphere.position.y > 1634 || 
+			sphere.position.z > 1634 ) {
+			sphere_direction = -1;
+		} else if (sphere.position.x < -1634 ||
+		           sphere.position.y < -1634 || 
+				   sphere.position.z < -1634 ) {
+			sphere_direction = 1;
+		}
+
+		//move toward camera location
+		if ( keyboard.pressed("W") ) {
+			var direction = player.position.clone().sub( camera.position ).normalize();
+			player.position.add(direction.clone().multiplyScalar(1));
+
+			var success = false;
+
+			// check to see if through exit
+			if( player.position.z > 1634 ) {
+				if( player.position.x > 1200 ) {
+					if (player.position.y < 100 && player.position.y > -100 ) {
+						// THROUGH THE EXIT
+						alert("WE HAVE EXITED THE ROOM");
+						success = true;
+					}
+				}
+			}
+
+			if (!success) {
+				// check for a collision of player with walls
+				if( player.position.x > 1634 || player.position.y > 1634 || player.position.z > 1634 || 
+		    	    		player.position.x < -1634 || player.position.y < -1634 || player.position.z < -1634 ) {
+					player.position.add(direction.clone().multiplyScalar(-1));
+				}
+			}
+			
+			pointConesAtPlayer();
+			
+			//console.log("Distance to Sphere: " + distance(player.position, sphere.position));
+			console.log("Player Position: " + player.position.x + ", " + player.position.y + ", " + player.position.z);
+		}
+
+		//move away camera location
+		if ( keyboard.pressed("S") ) {
+			var direction = player.position.clone().sub( camera.position ).normalize();
+			player.position.add(direction.clone().multiplyScalar(-1));
+
+			// check for a collision of player with walls
+			if( player.position.x > 1634 || player.position.y > 1634 || player.position.z > 1634 || 
+		    	    player.position.x < -1634 || player.position.y < -1634 || player.position.z < -1634 ) {
+				player.position.add(direction.clone().multiplyScalar(1));
+			}
+			
+			pointConesAtPlayer();
+			
+			console.log("Distance to Sphere: " + distance(player.position, sphere.position));
+		}
+		//move right
+		if ( keyboard.pressed("D") ) { }
+		//move left
+		if ( keyboard.pressed("A") ) { }
+		//move front
+		if ( keyboard.pressed("Z") ) { }
+		//move back
+		if ( keyboard.pressed("X") ) { }
+
+		// rotate left/right/up/down
+		var rotation_matrix = new THREE.Matrix4().identity();
+		if ( keyboard.pressed("O") ) {}
+	
+		if ( keyboard.pressed("Z") ) {}
+
+		controls.update();
+		
+		// check for a collision of player with sphere
+		if(distance(player.position, sphere.position) < 30+5) {
+			//write our code to respond to collision with sphere
+			//alert("Collision with sphere!");
+		}
+		
+		// move any attacking cones
+
+		if(attack_current >= 0) {
+			cone[attack_current].position.x -= attack_vector[0];
+			cone[attack_current].position.y -= attack_vector[1];
+			cone[attack_current].position.z -= attack_vector[2];
+
+			//check to see if attacking cone hit player
+			if(distance(player.position, cone[attack_current].position) < 10) {
+				//write our code to respond to collision with player
+				player_health -= 5;
+				var health_string = "";
+				for(h=0; h<player_health; h++) {
+					health_string += "H";
+				}
+				document.getElementById("health_bar").innerHTML = health_string;
+				if(player_health < 20) {
+					document.getElementById("health_bar").style.color = "red";
+				} else if(player_health < 50) {
+					document.getElementById("health_bar").style.color = "orange";
+				}
+				console.log("HEALTH is " + player_health);
+			}
+			
+			//check to see if attacking cone left the room
+			if((distance(player.position, cone[attack_current].position) > 2000) && attack_count < num_cones) {
+				// attack player with next cone
+				attackPlayer();
+			}
+
+		}
+		
+		//console.log(player.position.x,  player.position.y,  player.position.z);
+    }
+
+    function distance(a, b) {
+        return Math.sqrt((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) + (a.z-b.z)*(a.z-b.z));
+    }
+
+    function render() 
+    {
+		renderer.render( scene, camera );
+    }
+
+</script>
+</body>
+</html>
