@@ -15,7 +15,7 @@
 <script src="js/TrackballControls.js"></script>
 
 <div style="position:absolute; left:0px; top:0px; z-index:2">
-	<span id="health_bar" style="position:relative;top:5px;color:green">
+	<span id="health_bar" style="position:relative; top:0px; color:green; font-size: 20px">
 		HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 	</span>
 </div>
@@ -30,6 +30,7 @@
     var player = "";
     var player_health = 100;
     var sphere = "";
+    var num_spheres = 2;
     var sphere_direction = 1;
     var cone_geometry = [];
     var cone = [];
@@ -209,6 +210,24 @@
 		
 		attack_count++;    
     }
+    
+    function updateHealthBar() {
+		var health_string = "";
+		for(h=0; h<player_health; h++) {
+			health_string += "H";
+		}
+		document.getElementById("health_bar").innerHTML = health_string;
+		if(player_health <= 0) {
+			player.material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+			player.scale.set(10,10,10);
+			player.material.opacity = 0.5;
+		} else if(player_health < 20) {
+			document.getElementById("health_bar").style.color = "red";
+		} else if(player_health < 50) {
+			document.getElementById("health_bar").style.color = "orange";
+		}
+		console.log("HEALTH is " + player_health);		
+    }
 
     function updateTime() {
 		time++;
@@ -230,7 +249,7 @@
     function update() {
 
 		// local transformations
-		//change to bounce off wall (instead of just reverse direction)
+		// change to bounce off wall (instead of just reverse direction)
 		sphere.position.x += 10*sphere_direction;
 		sphere.position.y += 10*sphere_direction;
 	
@@ -309,9 +328,11 @@
 		controls.update();
 		
 		// check for a collision of player with sphere
+		
 		if(distance(player.position, sphere.position) < 30+5) {
 			//write our code to respond to collision with sphere
-			//alert("Collision with sphere!");
+			player_health -= 20;
+			updateHealthBar();
 		}
 		
 		// move any attacking cones
@@ -325,17 +346,7 @@
 			if(distance(player.position, cone[attack_current].position) < 10) {
 				//write our code to respond to collision with player
 				player_health -= 5;
-				var health_string = "";
-				for(h=0; h<player_health; h++) {
-					health_string += "H";
-				}
-				document.getElementById("health_bar").innerHTML = health_string;
-				if(player_health < 20) {
-					document.getElementById("health_bar").style.color = "red";
-				} else if(player_health < 50) {
-					document.getElementById("health_bar").style.color = "orange";
-				}
-				console.log("HEALTH is " + player_health);
+				updateHealthBar();
 			}
 			
 			//check to see if attacking cone left the room
