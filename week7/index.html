@@ -269,7 +269,7 @@
 			sphere_direction = -1;
 		} else if (sphere.position.x < -1634 ||
 		           sphere.position.y < -1634 || 
-				   sphere.position.z < -1634 ) {
+			   sphere.position.z < -1634 ) {
 			sphere_direction = 1;
 		}
 
@@ -355,7 +355,7 @@
 			//check to see if attacking cone hit player
 			if(distance(player.position, cone[attack_current].position) < 10) {
 				//write our code to respond to collision with player
-				player_health -= 50;
+				player_health -= 5;
 				updateHealthBar();
 			}
 			
