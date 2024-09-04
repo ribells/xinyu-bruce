@@ -147,6 +147,15 @@
 		room.scale.x = 10;
 		room.scale.y = 10;
 		room.scale.z = 10;
+		
+		// add ramps for player to use
+		var ramp_material = new THREE.MeshBasicMaterial( { color: 0xffffff, transparent: true, opacity: 0.4} );
+		
+		var ramp = new THREE.Mesh(new THREE.CubeGeometry(50, 5, 100), ramp_material, 0);
+		ramp.position.z = -200;
+		ramp.position.y = 40;
+		ramp.rotation.x = Math.PI/12;
+		scene.add(ramp);
 	
 		const sphere_geometry = new THREE.SphereGeometry( 30, 100, 100 ); 
 		const sphere_material = new THREE.MeshPhongMaterial( { color: 0xffff00 } ); 
@@ -218,9 +227,10 @@
 		}
 		document.getElementById("health_bar").innerHTML = health_string;
 		if(player_health <= 0) {
-			player.material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+			player.material = new THREE.MeshBasicMaterial( { color: 0xff0000, transparent: true, opacity: 0.5 } );
 			player.scale.set(10,10,10);
-			player.material.opacity = 0.5;
+			//player.material.transparency = true;
+			//player.material.opacity = 0.5;
 		} else if(player_health < 20) {
 			document.getElementById("health_bar").style.color = "red";
 		} else if(player_health < 50) {
@@ -345,7 +355,7 @@
 			//check to see if attacking cone hit player
 			if(distance(player.position, cone[attack_current].position) < 10) {
 				//write our code to respond to collision with player
-				player_health -= 5;
+				player_health -= 50;
 				updateHealthBar();
 			}
 			
