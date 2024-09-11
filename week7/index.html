@@ -163,16 +163,7 @@
 		ramp2.position.y = 336;
 		ramp2.rotation.x = Math.PI/36;
 		scene.add(ramp2);
-	/*
-		const sphere_geometry = new THREE.SphereGeometry( 30, 100, 100 ); 
-		const sphere_material = new THREE.MeshPhongMaterial( { color: 0xffff00 } ); 
-		sphere = new THREE.Mesh( sphere_geometry, sphere_material );
-		scene.add( sphere );
 
-		sphere.position.x = -36;	
-		sphere.position.z = -70;
-		sphere.position.y = 70;
-	*/
 		const sphere_material = new THREE.MeshPhongMaterial( { color: 0xffff00 } ); 
 		for(n=0;n<num_spheres;n++) {
 			sphere_geometry.push(new THREE.SphereGeometry( 30, 100, 100 ));
@@ -180,7 +171,7 @@
 			
 			scene.add(sphere[n]);
 			var sphere_distance = 0;
-			sphere_direction[n]=  Math.random();
+			sphere_direction[n] = Math.random();
 
 			while(sphere_distance < 600) {
 				sphere[n].position.x = Math.random() * 2400 - 1200;
@@ -188,7 +179,6 @@
 				sphere[n].position.z = Math.random() * 2400 - 1200;
 				sphere_distance = distance(player, sphere[n]);
 			}
-			
 		}
 		
 		const cone_material = new THREE.MeshBasicMaterial( {color: 0xff00ff} );
@@ -281,7 +271,7 @@
 		update();
 	}
 
-	function sphereMove(){
+	function sphereMove(n) {
     	sphere[n].position.x += 10*sphere_direction[n];
 		sphere[n].position.y += 10*sphere_direction[n];
 	
@@ -295,13 +285,14 @@
 			sphere_direction[n] *= -1;
 		}
 	}
+	
     function update() {
 
 		// local transformations
 		// change to bounce off wall (instead of just reverse direction)
 		
 		for(n=0;n<num_spheres;n++){
-		sphereMove();
+			sphereMove(n);
 		}
 		
 		//move toward camera location
@@ -334,7 +325,6 @@
 			
 			pointConesAtPlayer();
 			
-			//console.log("Distance to Sphere: " + distance(player.position, sphere.position));
 			console.log("Player Position: " + player.position.x + ", " + player.position.y + ", " + player.position.z);
 		}
 
@@ -350,8 +340,7 @@
 			}
 			
 			pointConesAtPlayer();
-			
-			console.log("Distance to Sphere: " + distance(player.position, sphere.position));
+
 		}
 		//move right
 		if ( keyboard.pressed("D") ) { }
@@ -371,11 +360,12 @@
 		controls.update();
 		
 		// check for a collision of player with sphere
-		
-		if(distance(player.position, sphere.position) < 30+5) {
-			//write our code to respond to collision with sphere
-			player_health -= 20;
-			updateHealthBar();
+		for(n=0;n<num_spheres;n++) {
+			if(distance(player.position, sphere[n].position) < 30+5) {
+				//write our code to respond to collision with sphere
+				player_health -= 20;
+				updateHealthBar();
+			}
 		}
 		
 		// move any attacking cones
@@ -397,7 +387,6 @@
 				// attack player with next cone
 				attackPlayer();
 			}
-
 		}
 		
 		//console.log(player.position.x,  player.position.y,  player.position.z);
